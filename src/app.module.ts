@@ -1,33 +1,19 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostagemModule } from './postagem/postagem.module';
-import { Postagem } from './postagem/entities/postagem.entity';
-import { Tema } from './tema/entities/tema.entity';
 import { TemaModule } from './tema/tema.module';
 import { AuthModule } from './auth/auth.module';
 import { UsuarioModule } from './usuario/usuario.module';
-import { Usuario } from './usuario/entities/usuario.entity';
 import { AppController } from './app.controller';
+import { ProdService } from './data/services/prod.service';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
+    ConfigModule.forRoot(),
     TypeOrmModule.forRootAsync({
+      useClass: ProdService,
       imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: configService.get<string>('DB_TYPE') as 'mysql',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_NAME'),
-        entities: [Postagem, Tema, Usuario],
-        synchronize: true,
-      }),
     }),
     PostagemModule,
     TemaModule,
