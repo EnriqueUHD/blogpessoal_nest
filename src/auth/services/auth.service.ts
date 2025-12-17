@@ -14,20 +14,20 @@ export class AuthService {
   ) {}
 
   async validateUser(
-    username: string,
-    password: string,
+    usuario: string,
+    senha: string,
   ): Promise<UsuarioSemSenha | null> {
-    const buscaUsuario = await this.usuarioService.findByUsuario(username);
+    const buscaUsuario = await this.usuarioService.findByUsuario(usuario);
 
     if (!buscaUsuario)
       throw new HttpException('Usuário não encontrado!', HttpStatus.NOT_FOUND);
 
-    const matchPassword = await this.bcrypt.compararSenhas(
-      password,
+    const validaSenha = await this.bcrypt.compararSenhas(
+      senha,
       buscaUsuario.senha,
     );
 
-    if (buscaUsuario && matchPassword) {
+    if (buscaUsuario && validaSenha) {
       const { senha, ...resposta } = buscaUsuario;
       return resposta;
     }
@@ -46,6 +46,7 @@ export class AuthService {
       id: buscaUsuario?.id,
       nome: buscaUsuario?.nome,
       usuario: buscaUsuario?.usuario,
+      senha: '',
       foto: buscaUsuario?.foto,
       token: `Bearer ${this.jwtService.sign(payload)}`,
     };
